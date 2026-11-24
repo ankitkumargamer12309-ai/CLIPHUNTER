@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# CLIP HUNTER runtime data
+backend/uploads/
+backend/data/
