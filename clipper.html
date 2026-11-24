@@ -1,66 +1,41 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090909">
-  <title>Clip Workspace — CLIP HUNTER</title>
-  <style>
-    :root{color-scheme:dark;--red:#f12b36}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,rgba(190,20,32,.17),transparent 42%),#080808;color:#fff;font-family:Inter,system-ui,sans-serif}
-    header{height:76px;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,6vw,80px)}
-    .brand{font-weight:950;letter-spacing:2px;color:#fff;text-decoration:none}.brand span{color:var(--red)}
-    .tag{font-size:11px;color:#ff858b;letter-spacing:1.5px;font-weight:800}
-    main{width:min(900px,calc(100% - 32px));margin:64px auto}
-    .eyebrow{text-align:center;color:#ff777f;font-size:11px;letter-spacing:2px;font-weight:800}
-    h1{text-align:center;font-size:clamp(32px,6vw,54px);letter-spacing:-2px;margin:12px 0}
-    h1 span{color:var(--red)}.intro{text-align:center;color:#aaa;line-height:1.7;max-width:620px;margin:0 auto 34px}
-    .panel{border:1px solid #303030;border-radius:18px;background:#111;padding:clamp(20px,4vw,36px);box-shadow:0 22px 70px #0008}
-    .drop{min-height:250px;border:1.5px dashed #555;border-radius:14px;display:grid;place-items:center;text-align:center;padding:24px;background:#0b0b0b}
-    .upload-icon{font-size:42px;color:var(--red)}.drop h2{font-size:20px;margin:10px 0 6px}.drop p{color:#999;font-size:13px;margin:0 0 18px}
-    input[type=file]{max-width:100%;color:#bbb;font-size:12px}
-    video{display:none;width:100%;max-height:380px;margin-top:22px;background:#000;border-radius:12px}
-    .fileinfo{color:#aaa;font-size:12px;margin-top:12px;overflow-wrap:anywhere}
-    .cut{width:100%;height:52px;margin-top:22px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff424d,#c80d1b);color:#fff;font-weight:850;font-size:14px;cursor:not-allowed;opacity:.65}
-    .notice{text-align:center;color:#888;font-size:12px;line-height:1.6;margin:16px 0 0}
-    @media(max-width:600px){main{margin:38px auto}.tag{font-size:9px}}
-  </style>
-</head>
-<body>
-  <header><a class="brand" href="index.html">CLIP <span>HUNTER</span></a><div class="tag">AI CLIP WORKSPACE</div></header>
-  <main>
-    <div class="eyebrow">WELCOME TO YOUR WORKSPACE</div>
-    <h1>FIND YOUR <span>BEST MOMENTS.</span></h1>
-    <p class="intro">Upload a video to prepare it for highlight detection. Gaming-focused AI clipping will be connected here in the next build.</p>
-    <section class="panel">
-      <div class="drop">
-        <div>
-          <div class="upload-icon">↑</div>
-          <h2>Upload your video</h2>
-          <p>Choose a video file from your device</p>
-          <input id="videoFile" type="file" accept="video/*">
-        </div>
-      </div>
-      <video id="preview" controls playsinline></video>
-      <div class="fileinfo" id="fileInfo" aria-live="polite">No video selected yet.</div>
-      <button class="cut" type="button" disabled>AI CLIPPING ENGINE — COMING NEXT</button>
-      <p class="notice">Video selection and preview are available. Automatic highlight detection and clip exporting are not connected yet.</p>
-    </section>
-  </main>
-  <script>
-    const picker=document.getElementById("videoFile");
-    const preview=document.getElementById("preview");
-    const info=document.getElementById("fileInfo");
-    let currentUrl="";
-    picker.addEventListener("change",()=>{
-      const file=picker.files && picker.files[0];
-      if(!file){preview.pause();preview.removeAttribute("src");preview.load();preview.style.display="none";info.textContent="No video selected yet.";return;}
-      if(currentUrl)URL.revokeObjectURL(currentUrl);
-      currentUrl=URL.createObjectURL(file);
-      preview.src=currentUrl;preview.style.display="block";
-      info.textContent=file.name+" · "+(file.size/1024/1024).toFixed(1)+" MB";
-      preview.load();
-    });
-  </script>
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090909"><title>Clip Workspace — CLIP HUNTER</title>
+<style>
+:root{color-scheme:dark;--red:#f12b36;--muted:#aaa}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,rgba(190,20,32,.17),transparent 42%),#080808;color:#fff;font-family:Inter,system-ui,sans-serif}
+header{height:76px;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,6vw,80px)}.brand{font-weight:950;letter-spacing:2px;color:#fff;text-decoration:none}.brand span{color:var(--red)}.tag{font-size:11px;color:#ff858b;letter-spacing:1.5px;font-weight:800}
+main{width:min(960px,calc(100% - 32px));margin:48px auto 70px}.eyebrow{text-align:center;color:#ff777f;font-size:11px;letter-spacing:2px;font-weight:800}h1{text-align:center;font-size:clamp(32px,6vw,54px);letter-spacing:-2px;margin:12px 0}h1 span{color:var(--red)}.intro{text-align:center;color:var(--muted);line-height:1.7;max-width:680px;margin:0 auto 30px}
+.panel{border:1px solid #303030;border-radius:18px;background:#111;padding:clamp(18px,4vw,32px);box-shadow:0 22px 70px #0008;margin-top:18px}h2{font-size:18px;margin:0 0 16px}.field-label{display:block;color:#ddd;font-size:12px;font-weight:700;margin:15px 0 7px}
+input[type=url],input[type=text],select{width:100%;height:46px;border:1px solid #383838;border-radius:9px;background:#090909;color:#fff;padding:0 12px;font-size:14px;outline:none}input:focus,select:focus{border-color:var(--red)}.or{text-align:center;color:#777;font-size:11px;margin:14px}
+.drop{min-height:155px;border:1.5px dashed #555;border-radius:13px;display:grid;place-items:center;text-align:center;padding:18px;background:#0b0b0b}.drop strong{display:block;margin:6px}.drop p{color:#999;font-size:12px;margin:5px 0 14px}input[type=file]{max-width:100%;color:#bbb;font-size:12px}
+video{display:none;width:100%;max-height:360px;margin-top:18px;background:#000;border-radius:12px}.fileinfo{color:#aaa;font-size:12px;margin-top:10px;overflow-wrap:anywhere}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ai{border:1px solid #303030;border-radius:11px;background:#0c0c0c;padding:14px}.ai b{display:block;font-size:13px;margin-bottom:5px}.ai p{margin:0;color:#999;font-size:11px;line-height:1.5}.num{color:#ff6872;margin-right:6px}
+.actions{display:flex;gap:10px;align-items:center;margin-top:20px}.cut{flex:1;min-height:50px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff424d,#c80d1b);color:white;font-weight:850;font-size:14px;cursor:pointer}.status{color:#ff9aa0;font-size:12px;line-height:1.5;min-height:20px;margin:14px 0 0}.output{border:1px dashed #444;border-radius:12px;padding:20px;text-align:center;color:#999;font-size:12px;line-height:1.6}.note{color:#888;font-size:11px;line-height:1.6;margin:14px 0 0}.pill{display:inline-block;border:1px solid #493034;color:#ff9ba1;border-radius:99px;padding:5px 9px;font-size:10px;margin:0 5px 5px 0}
+@media(max-width:620px){main{margin:34px auto 50px}.grid{grid-template-columns:1fr}.tag{font-size:9px}}
+</style></head><body>
+<header><a class="brand" href="index.html">CLIP <span>HUNTER</span></a><div class="tag">GAMING AI WORKSPACE</div></header>
+<main><div class="eyebrow">YOUR GAMING CLIP STUDIO</div><h1>TURN GAMEPLAY INTO <span>HIGHLIGHTS.</span></h1><p class="intro">Add a video or a YouTube link, choose your clip format, and prepare your clipping job.</p>
+<section class="panel"><h2>1. Add your source video</h2><label class="field-label" for="youtubeUrl">YouTube video link</label><input id="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url"><div class="or">OR UPLOAD A VIDEO</div>
+<div class="drop"><div><div style="font-size:30px;color:var(--red)">↑</div><strong>Choose a video from your device</strong><p>Video files supported by your browser</p><input id="videoFile" type="file" accept="video/*"></div></div>
+<video id="preview" controls playsinline></video><div class="fileinfo" id="fileInfo" aria-live="polite">No local video selected.</div>
+<label class="field-label" for="ratio">2. Select clip ratio</label><select id="ratio"><option value="9:16">9:16 — Shorts / Reels / TikTok</option><option value="1:1">1:1 — Square</option><option value="16:9">16:9 — Landscape</option><option value="4:5">4:5 — Portrait feed</option></select>
+<label class="field-label" for="clipTitle">3. Clip title / project name</label><input id="clipTitle" type="text" maxlength="80" placeholder="Enter a title for your clips"></section>
+<section class="panel"><h2>4. CLIP HUNTER AI team</h2><div class="grid">
+<div class="ai"><b><span class="num">AI 01</span> Best Moment Detector</b><p>Finds exciting gameplay moments and highlight-worthy events.</p></div>
+<div class="ai"><b><span class="num">AI 02</span> Player / Character Tracker</b><p>Keeps the main player or important game action framed in the clip.</p></div>
+<div class="ai"><b><span class="num">AI 03</span> Facecam Detector & Layout</b><p>Detects facecam and plans a facecam-above, gameplay-below layout when present.</p></div>
+<div class="ai"><b><span class="num">AI 04</span> Smart Video Editor</b><p>Plans cuts, pacing, transitions and visual polish for short-form clips.</p></div>
+<div class="ai"><b><span class="num">AI 05</span> Title, Description & Subtitle AI</b><p>Creates clip titles, descriptions and timed subtitles from the video.</p></div>
+<div class="ai"><b><span class="num">AI 06</span> Clip Organizer & Export</b><p>Organizes finished clips in a project gallery for preview and download.</p></div>
+<div class="ai"><b><span class="num">AI 07</span> Game Audio & Event Detector</b><p>Uses audio cues alongside visual signals to help spot important moments.</p></div>
+<div class="ai"><b><span class="num">AI 08</span> Smart Reframe & Quality Check</b><p>Checks framing and output settings for the selected aspect ratio.</p></div>
+</div><div style="margin-top:16px"><span class="pill">Gaming-first workflow</span><span class="pill">Multi-AI pipeline design</span><span class="pill">Download gallery planned</span></div>
+<div class="actions"><button class="cut" id="createBtn" type="button">CREATE CLIPS</button></div><p class="status" id="status" role="status" aria-live="polite">Choose a video or enter a YouTube link to prepare your job.</p>
+<p class="note">These eight AI modules are the planned pipeline, not connected processing services yet. A backend is still required before real clips can be generated and exported.</p></section>
+<section class="panel"><h2>5. Your ready clips</h2><div class="output">Completed clips will appear here with preview and download controls once AI processing and export are connected.</div></section></main>
+<script>
+const picker=document.getElementById("videoFile"),preview=document.getElementById("preview"),info=document.getElementById("fileInfo"),urlInput=document.getElementById("youtubeUrl"),status=document.getElementById("status");
+let currentUrl="";
+function validYouTube(value){try{const u=new URL(value);return (u.hostname==="youtube.com"||u.hostname.endsWith(".youtube.com")||u.hostname==="youtu.be")&&(u.pathname==="/watch"||u.hostname==="youtu.be"||u.pathname.startsWith("/shorts/")||u.pathname.startsWith("/embed/"));}catch(e){return false;}}
+picker.addEventListener("change",()=>{const file=picker.files&&picker.files[0];if(!file){preview.pause();preview.removeAttribute("src");preview.load();preview.style.display="none";info.textContent="No local video selected.";return;}if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);preview.src=currentUrl;preview.style.display="block";info.textContent=file.name+" · "+(file.size/1024/1024).toFixed(1)+" MB";preview.load();urlInput.value="";status.textContent="Video selected. Choose the ratio and add a project title.";});
+urlInput.addEventListener("input",()=>{if(urlInput.value.trim()){picker.value="";preview.pause();preview.removeAttribute("src");preview.load();preview.style.display="none";info.textContent="YouTube link entered. Server-side import is not connected yet.";status.textContent="YouTube link saved in this form. Server-side video import is still required."; }});
+document.getElementById("createBtn").addEventListener("click",()=>{const file=picker.files&&picker.files[0],url=urlInput.value.trim(),title=document.getElementById("clipTitle").value.trim();if(!file&&!url){status.textContent="Please upload a video or enter a YouTube link.";return;}if(url&&!validYouTube(url)){status.textContent="Please enter a valid YouTube video link.";return;}if(!title){status.textContent="Please enter a clip title or project name.";return;}status.textContent="Settings prepared (ratio: "+document.getElementById("ratio").value+"). AI processing is not connected yet; a backend is needed to analyze, cut and export the video.";});
+</script></body></html>
