@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: clip-hunter-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CLIPHUNTER_ALLOWED_ORIGINS
+        sync: false
+      - key: CLIPHUNTER_MAX_UPLOAD_BYTES
+        value: "524288000"
