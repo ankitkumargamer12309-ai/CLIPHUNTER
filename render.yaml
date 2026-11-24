@@ -10,3 +10,5 @@ services:
         sync: false
       - key: CLIPHUNTER_MAX_UPLOAD_BYTES
         value: "524288000"
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
