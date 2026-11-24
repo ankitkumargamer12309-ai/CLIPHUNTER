@@ -77,12 +77,16 @@
       };
       message.textContent = messages[error.code] || error.message || "Authentication failed. Please try again.";
     }
+    // Initialize Firebase only once; repeated clicks must reuse the same app.
+    const app = configured ? initializeApp(firebaseConfig) : null;
+    const authInstance = app ? getAuth(app) : null;
+
     function readyAuth() {
-      if (!configured) {
+      if (!authInstance) {
         message.textContent = "Firebase setup is required before sign-in can work. Add your Firebase web config first.";
         return null;
       }
-      return getAuth(initializeApp(firebaseConfig));
+      return authInstance;
     }
     function setMode(next) {
       mode = next;
