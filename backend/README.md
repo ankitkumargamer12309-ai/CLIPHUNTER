@@ -5,7 +5,8 @@ FastAPI backend foundation for local video upload and **manual timestamp-based**
 ## Current API
 
 - `GET /` — basic service information
-- `GET /health` — health check
+- `GET /health` — public health check
+- `GET /api/me` — verify the signed-in Firebase session and return its account UID/email
 - `POST /api/upload` — upload a video (default maximum 500 MB)
 - `GET /api/videos` — list uploaded videos
 - `GET /api/videos/{video_id}` — read uploaded-video metadata
