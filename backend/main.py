@@ -132,6 +132,12 @@ async def upload_video(file: UploadFile = File(...), user=Depends(verify_firebas
         await file.close()
 
 
+@app.get("/api/me")
+def current_user(user=Depends(verify_firebase_user)):
+    """Confirm that the caller has a valid Firebase session."""
+    return {"authenticated": True, "uid": user["uid"], "email": user.get("email")}
+
+
 @app.get("/api/videos")
 def list_uploaded_videos(user=Depends(verify_firebase_user)):
     videos = []
