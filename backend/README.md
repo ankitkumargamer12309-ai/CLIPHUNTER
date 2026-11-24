@@ -49,11 +49,11 @@ A Docker image is provided in `backend/Dockerfile`; it installs FFmpeg and the P
 Deployment checklist:
 
 1. Import the CLIP HUNTER GitHub repository into Render using the Blueprint.
-2. Set `CLIPHUNTER_ALLOWED_ORIGINS` to the exact public frontend origin (for example, the GitHub Pages site origin); do not use `*` for production.
+2. Set `FIREBASE_SERVICE_ACCOUNT_JSON` to the Firebase Admin service-account JSON (keep it secret; never commit it), and set `CLIPHUNTER_ALLOWED_ORIGINS` to the exact public frontend origin (for example, the GitHub Pages site origin); do not use `*` for production.
 3. Deploy and open `/health` on the generated backend URL.
 4. Copy that backend URL into the Backend API address field on the clipper page.
 
-**Storage warning:** uploaded videos, generated clips, and metadata currently live on the backend filesystem. Many hosted services use ephemeral filesystems, so data can disappear after a restart or redeploy. Configure persistent storage before relying on clip history or user uploads in production. The current frontend/API also does not yet enforce Firebase ID-token authentication; do not expose uploads publicly until server-side authentication and access controls are implemented.
+**Storage warning:** uploaded videos, generated clips, and metadata currently live on the backend filesystem. Many hosted services use ephemeral filesystems, so data can disappear after a restart or redeploy. Configure persistent storage before relying on clip history or user uploads in production. Video and clip API routes now require a valid Firebase ID token. The backend verifies tokens with Firebase Admin using `FIREBASE_SERVICE_ACCOUNT_JSON` (or application-default credentials). The clipper page sends the signed-in user's token. Configure the same Firebase web-app values in both `login.html` and `clipper.html`; keep the service-account key only in the backend host's secret environment variables. This is authentication, not per-user data isolation yet: add ownership checks before multiple users share the service.
 
 ## Manual clip request example
 
