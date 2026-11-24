@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -35,6 +35,39 @@ app.add_middleware(
 )
 
 
+_firebase_app = None
+
+
+def verify_firebase_user(authorization: str | None = Header(default=None)):
+    """Require a valid Firebase ID token for all video and clip data routes."""
+    global _firebase_app
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Sign in is required.")
+    token = authorization[7:].strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing sign-in token.")
+
+    try:
+        if _firebase_app is None:
+            service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+            if service_account_json:
+                credential_info = json.loads(service_account_json)
+                credential = credentials.Certificate(credential_info)
+            else:
+                credential = credentials.ApplicationDefault()
+            _firebase_app = firebase_admin.initialize_app(credential)
+        decoded = firebase_auth.verify_id_token(token, app=_firebase_app)
+        return {"uid": decoded["uid"], "email": decoded.get("email")}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503 if "default credentials" in str(exc).lower() or "credential" in str(exc).lower()
+            else 401,
+            detail="Authentication service is not configured or the sign-in token is invalid.",
+        ) from exc
+
+
 @app.get("/")
 def root():
     return {"name": "CLIP HUNTER API", "status": "running", "docs": "/docs"}
@@ -46,7 +79,7 @@ def health():
 
 
 @app.post("/api/upload", status_code=201)
-async def upload_video(file: UploadFile = File(...)):
+async def upload_video(file: UploadFile = File(...), user=Depends(verify_firebase_user)):
     original_name = Path(file.filename or "video").name
     extension = Path(original_name).suffix.lower()
 
@@ -99,7 +132,7 @@ async def upload_video(file: UploadFile = File(...)):
 
 
 @app.get("/api/videos")
-def list_uploaded_videos():
+def list_uploaded_videos(user=Depends(verify_firebase_user)):
     videos = []
     for metadata_file in METADATA_DIR.glob("*.json"):
         try:
@@ -111,7 +144,7 @@ def list_uploaded_videos():
 
 
 @app.get("/api/videos/{video_id}")
-def get_uploaded_video(video_id: str):
+def get_uploaded_video(video_id: str, user=Depends(verify_firebase_user)):
     if not video_id.isalnum():
         raise HTTPException(status_code=400, detail="Invalid video ID.")
     metadata_file = METADATA_DIR / f"{video_id}.json"
@@ -124,6 +157,9 @@ from pydantic import BaseModel, Field
 from fastapi.responses import FileResponse
 import subprocess
 import shutil
+
+import firebase_admin
+from firebase_admin import auth as firebase_auth, credentials
 
 CLIP_DIR = BASE_DIR / "clips"
 CLIP_DIR.mkdir(parents=True, exist_ok=True)
@@ -159,7 +195,7 @@ def read_video_record(video_id: str):
 
 
 @app.post("/api/videos/{video_id}/clips", status_code=201)
-def create_timestamp_clip(video_id: str, request: ClipRequest):
+def create_timestamp_clip(video_id: str, request: ClipRequest, user=Depends(verify_firebase_user)):
     """Create a clip from user-selected timestamps; this is not AI highlight detection."""
     _, source = read_video_record(video_id)
     if request.end_seconds <= request.start_seconds:
@@ -223,7 +259,7 @@ def create_timestamp_clip(video_id: str, request: ClipRequest):
 
 
 @app.get("/api/clips")
-def list_created_clips():
+def list_created_clips(user=Depends(verify_firebase_user)):
     clips = []
     for metadata_file in CLIP_METADATA_DIR.glob("*.json"):
         try:
@@ -235,7 +271,7 @@ def list_created_clips():
 
 
 @app.get("/api/clips/{clip_id}/download")
-def download_created_clip(clip_id: str):
+def download_created_clip(clip_id: str, user=Depends(verify_firebase_user)):
     if not clip_id.isalnum():
         raise HTTPException(status_code=400, detail="Invalid clip ID.")
     metadata_file = CLIP_METADATA_DIR / f"{clip_id}.json"
