@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>Clip Workspace — CLIP HUNTER</title>
+  <style>
+    :root{color-scheme:dark;--red:#f12b36}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,rgba(190,20,32,.17),transparent 42%),#080808;color:#fff;font-family:Inter,system-ui,sans-serif}
+    header{height:76px;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,6vw,80px)}
+    .brand{font-weight:950;letter-spacing:2px;color:#fff;text-decoration:none}.brand span{color:var(--red)}
+    .tag{font-size:11px;color:#ff858b;letter-spacing:1.5px;font-weight:800}
+    main{width:min(900px,calc(100% - 32px));margin:64px auto}
+    .eyebrow{text-align:center;color:#ff777f;font-size:11px;letter-spacing:2px;font-weight:800}
+    h1{text-align:center;font-size:clamp(32px,6vw,54px);letter-spacing:-2px;margin:12px 0}
+    h1 span{color:var(--red)}.intro{text-align:center;color:#aaa;line-height:1.7;max-width:620px;margin:0 auto 34px}
+    .panel{border:1px solid #303030;border-radius:18px;background:#111;padding:clamp(20px,4vw,36px);box-shadow:0 22px 70px #0008}
+    .drop{min-height:250px;border:1.5px dashed #555;border-radius:14px;display:grid;place-items:center;text-align:center;padding:24px;background:#0b0b0b}
+    .upload-icon{font-size:42px;color:var(--red)}.drop h2{font-size:20px;margin:10px 0 6px}.drop p{color:#999;font-size:13px;margin:0 0 18px}
+    input[type=file]{max-width:100%;color:#bbb;font-size:12px}
+    video{display:none;width:100%;max-height:380px;margin-top:22px;background:#000;border-radius:12px}
+    .fileinfo{color:#aaa;font-size:12px;margin-top:12px;overflow-wrap:anywhere}
+    .cut{width:100%;height:52px;margin-top:22px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff424d,#c80d1b);color:#fff;font-weight:850;font-size:14px;cursor:not-allowed;opacity:.65}
+    .notice{text-align:center;color:#888;font-size:12px;line-height:1.6;margin:16px 0 0}
+    @media(max-width:600px){main{margin:38px auto}.tag{font-size:9px}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="index.html">CLIP <span>HUNTER</span></a><div class="tag">AI CLIP WORKSPACE</div></header>
+  <main>
+    <div class="eyebrow">WELCOME TO YOUR WORKSPACE</div>
+    <h1>FIND YOUR <span>BEST MOMENTS.</span></h1>
+    <p class="intro">Upload a video to prepare it for highlight detection. Gaming-focused AI clipping will be connected here in the next build.</p>
+    <section class="panel">
+      <div class="drop">
+        <div>
+          <div class="upload-icon">↑</div>
+          <h2>Upload your video</h2>
+          <p>Choose a video file from your device</p>
+          <input id="videoFile" type="file" accept="video/*">
+        </div>
+      </div>
+      <video id="preview" controls playsinline></video>
+      <div class="fileinfo" id="fileInfo" aria-live="polite">No video selected yet.</div>
+      <button class="cut" type="button" disabled>AI CLIPPING ENGINE — COMING NEXT</button>
+      <p class="notice">Video selection and preview are available. Automatic highlight detection and clip exporting are not connected yet.</p>
+    </section>
+  </main>
+  <script>
+    const picker=document.getElementById("videoFile");
+    const preview=document.getElementById("preview");
+    const info=document.getElementById("fileInfo");
+    let currentUrl="";
+    picker.addEventListener("change",()=>{
+      const file=picker.files && picker.files[0];
+      if(!file){preview.pause();preview.removeAttribute("src");preview.load();preview.style.display="none";info.textContent="No video selected yet.";return;}
+      if(currentUrl)URL.revokeObjectURL(currentUrl);
+      currentUrl=URL.createObjectURL(file);
+      preview.src=currentUrl;preview.style.display="block";
+      info.textContent=file.name+" · "+(file.size/1024/1024).toFixed(1)+" MB";
+      preview.load();
+    });
+  </script>
+</body>
+</html>
