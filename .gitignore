@@ -8,3 +8,5 @@ venv/
 # CLIP HUNTER runtime data
 backend/uploads/
 backend/data/
+backend/clips/
+backend/clip_data/
