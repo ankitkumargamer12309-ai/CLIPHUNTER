@@ -19,15 +19,9 @@ Accepted upload extensions: MP4, MOV, MKV, WEBM, AVI.
 
 Clip export currently uses **manual start and end timestamps**. It is not AI highlight detection and does not yet identify exciting gaming moments, track players, detect facecam activity, or generate smart subtitles. Ratio conversion uses FFmpeg scale/pad behavior; it is not subject-aware reframing.
 
-## Requirements
-
-- Python 3.10 or newer
-- FFmpeg installed on the backend host and available on PATH
-- If FFmpeg is installed outside PATH, set `FFMPEG_PATH` to the executable path
-
-The Python package requirements do not install the FFmpeg executable. If FFmpeg is unavailable, the clip endpoint returns HTTP 503.
-
 ## Run locally
+
+Requirements: Python 3.10+ and FFmpeg available on PATH.
 
 ```bash
 cd backend
@@ -48,6 +42,19 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 Open `http://127.0.0.1:8000/health` for the health check and `http://127.0.0.1:8000/docs` for interactive API docs.
 
+## Docker deployment
+
+A Docker image is provided in `backend/Dockerfile`; it installs FFmpeg and the Python requirements. The root `render.yaml` provides a Render Blueprint for the API.
+
+Deployment checklist:
+
+1. Import the CLIP HUNTER GitHub repository into Render using the Blueprint.
+2. Set `CLIPHUNTER_ALLOWED_ORIGINS` to the exact public frontend origin (for example, the GitHub Pages site origin); do not use `*` for production.
+3. Deploy and open `/health` on the generated backend URL.
+4. Copy that backend URL into the Backend API address field on the clipper page.
+
+**Storage warning:** uploaded videos, generated clips, and metadata currently live on the backend filesystem. Many hosted services use ephemeral filesystems, so data can disappear after a restart or redeploy. Configure persistent storage before relying on clip history or user uploads in production. The current frontend/API also does not yet enforce Firebase ID-token authentication; do not expose uploads publicly until server-side authentication and access controls are implemented.
+
 ## Manual clip request example
 
 Send JSON to `POST /api/videos/{video_id}/clips`:
@@ -67,11 +74,7 @@ Use a valid uploaded `video_id`. The selected interval must be positive and no l
 
 - `CLIPHUNTER_UPLOAD_DIR`: optional upload storage directory.
 - `CLIPHUNTER_MAX_UPLOAD_BYTES`: maximum upload size in bytes (default 500 MB).
-- `CLIPHUNTER_ALLOWED_ORIGINS`: comma-separated frontend origins. The default `*` is for development only; set the exact deployed frontend origin before production.
+- `CLIPHUNTER_ALLOWED_ORIGINS`: comma-separated frontend origins. The default `*` is for development only.
 - `FFMPEG_PATH`: optional path to the FFmpeg executable when it is not available on PATH.
 
-Uploaded videos, generated clips, and their runtime metadata are stored locally and should not be committed to Git.
-
-## Deployment and security status
-
-This backend has been committed as source code but has not yet been verified on a live hosted server. The current API does not enforce Firebase authentication tokens, so frontend sign-in alone does not protect API endpoints. Add server-side token verification and production storage/access controls before exposing it publicly.
+Uploaded videos, generated clips, and runtime metadata are excluded from Git by `.gitignore`.
