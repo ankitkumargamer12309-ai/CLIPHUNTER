@@ -109,6 +109,7 @@ async def upload_video(file: UploadFile = File(...), user=Depends(verify_firebas
 
         record = {
             "video_id": video_id,
+            "owner_uid": user["uid"],
             "original_name": original_name,
             "stored_name": destination.name,
             "size_bytes": total_bytes,
@@ -136,7 +137,9 @@ def list_uploaded_videos(user=Depends(verify_firebase_user)):
     videos = []
     for metadata_file in METADATA_DIR.glob("*.json"):
         try:
-            videos.append(json.loads(metadata_file.read_text(encoding="utf-8")))
+            record = json.loads(metadata_file.read_text(encoding="utf-8"))
+            if record.get("owner_uid") == user["uid"]:
+                videos.append(record)
         except (OSError, json.JSONDecodeError):
             continue
     videos.sort(key=lambda item: item.get("created_at", ""), reverse=True)
@@ -150,7 +153,10 @@ def get_uploaded_video(video_id: str, user=Depends(verify_firebase_user)):
     metadata_file = METADATA_DIR / f"{video_id}.json"
     if not metadata_file.exists():
         raise HTTPException(status_code=404, detail="Video not found.")
-    return json.loads(metadata_file.read_text(encoding="utf-8"))
+    record = json.loads(metadata_file.read_text(encoding="utf-8"))
+    if record.get("owner_uid") != user["uid"]:
+        raise HTTPException(status_code=404, detail="Video not found.")
+    return record
 
 
 from pydantic import BaseModel, Field
@@ -181,13 +187,15 @@ class ClipRequest(BaseModel):
     title: str = Field(default="Gaming highlight", min_length=1, max_length=80)
 
 
-def read_video_record(video_id: str):
+def read_video_record(video_id: str, user):
     if not video_id.isalnum():
         raise HTTPException(status_code=400, detail="Invalid video ID.")
     metadata_file = METADATA_DIR / f"{video_id}.json"
     if not metadata_file.exists():
         raise HTTPException(status_code=404, detail="Video not found.")
     record = json.loads(metadata_file.read_text(encoding="utf-8"))
+    if record.get("owner_uid") != user["uid"]:
+        raise HTTPException(status_code=404, detail="Video not found.")
     source = UPLOAD_DIR / record["stored_name"]
     if not source.is_file():
         raise HTTPException(status_code=404, detail="Stored video file is missing.")
@@ -197,7 +205,7 @@ def read_video_record(video_id: str):
 @app.post("/api/videos/{video_id}/clips", status_code=201)
 def create_timestamp_clip(video_id: str, request: ClipRequest, user=Depends(verify_firebase_user)):
     """Create a clip from user-selected timestamps; this is not AI highlight detection."""
-    _, source = read_video_record(video_id)
+    _, source = read_video_record(video_id, user)
     if request.end_seconds <= request.start_seconds:
         raise HTTPException(status_code=422, detail="End time must be after start time.")
     duration = request.end_seconds - request.start_seconds
@@ -241,6 +249,7 @@ def create_timestamp_clip(video_id: str, request: ClipRequest, user=Depends(veri
     clip_record = {
         "clip_id": clip_id,
         "video_id": video_id,
+        "owner_uid": user["uid"],
         "title": request.title,
         "ratio": request.ratio,
         "start_seconds": request.start_seconds,
@@ -263,7 +272,9 @@ def list_created_clips(user=Depends(verify_firebase_user)):
     clips = []
     for metadata_file in CLIP_METADATA_DIR.glob("*.json"):
         try:
-            clips.append(json.loads(metadata_file.read_text(encoding="utf-8")))
+            record = json.loads(metadata_file.read_text(encoding="utf-8"))
+            if record.get("owner_uid") == user["uid"]:
+                clips.append(record)
         except (OSError, json.JSONDecodeError):
             continue
     clips.sort(key=lambda item: item.get("created_at", ""), reverse=True)
@@ -279,6 +290,8 @@ def download_created_clip(clip_id: str, user=Depends(verify_firebase_user)):
     if not metadata_file.is_file() or not output.is_file():
         raise HTTPException(status_code=404, detail="Clip not found.")
     record = json.loads(metadata_file.read_text(encoding="utf-8"))
+    if record.get("owner_uid") != user["uid"]:
+        raise HTTPException(status_code=404, detail="Clip not found.")
     safe_title = "".join(ch for ch in record.get("title", "clip") if ch.isalnum() or ch in " -_").strip()
     return FileResponse(
         output,
