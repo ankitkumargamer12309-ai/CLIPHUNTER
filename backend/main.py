@@ -9,6 +9,8 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 
+from gaming_highlights import detect_highlights
+
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = Path(os.getenv("CLIPHUNTER_UPLOAD_DIR", str(BASE_DIR / "uploads")))
 METADATA_DIR = BASE_DIR / "data"
@@ -206,6 +208,24 @@ def read_video_record(video_id: str, user):
     if not source.is_file():
         raise HTTPException(status_code=404, detail="Stored video file is missing.")
     return record, source
+
+
+class HighlightRequest(BaseModel):
+    clip_seconds: int = Field(default=25, ge=5, le=60)
+    max_candidates: int = Field(default=5, ge=1, le=10)
+
+
+@app.post("/api/videos/{video_id}/highlights")
+def analyze_gaming_highlights(video_id: str, request: HighlightRequest,
+                             user=Depends(verify_firebase_user)):
+    """Rank candidate moments from motion and scene-change signals."""
+    _, source = read_video_record(video_id, user)
+    try:
+        return detect_highlights(source, request.clip_seconds, request.max_candidates)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Highlight analysis unavailable; check OpenCV and video codec support.") from exc
 
 
 @app.post("/api/videos/{video_id}/clips", status_code=201)
